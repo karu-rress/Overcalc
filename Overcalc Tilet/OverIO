@@ -1,0 +1,298 @@
+//
+//  OverIO.h
+//
+//
+//         The Standard In-Out system of the Overcalc
+//         Copyright (c) 2017 Allen Na. All rights reserved.
+//
+//         Contents:
+//
+
+#pragma once
+#include "stdafx.h"
+#ifndef _OVERIO_
+#define _OVERIO_
+
+enum class CP
+{
+	Korean = 949,
+	US = 437,
+	Japanese = 932,
+	UTF_8 = 65001
+};
+
+enum class SetCon
+{
+	CLEAR
+};
+
+enum class CURSOR_TYPE
+{
+	NO,
+	SOLID,
+	NORMAL
+};
+namespace Overcalc
+{
+	class CFileIO
+	{
+	public:
+		[[noreturn]] virtual void ReadTopin(void) throw(bool);
+		[[noreturn]] virtual void ReadEdition(void) throw(bool);
+		[[noreturn]] virtual void ReadLogPrint(void) throw(bool);
+		[[nodiscard]] virtual int ReturnEdition(void); 
+		[[noreturn]] virtual void WriteULog(void);
+		[[noreturn]] virtual void WriteGameLog(const wchar_t* Edition, const wchar_t* Game, bool Did_Win);
+		[[deprecated("Not prepared")]] [[nodiscard]] virtual std::list<std::wstring> ReadGameLog(void);
+
+	private:
+		int  LogPrint;
+		std::vector<int> EditionArr = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+		std::wfstream	RWData;
+		std::wfstream	RWEdition;
+		std::wfstream	RWLogPrint;
+		std::wfstream	RWGameLOG;
+		std::wfstream	WriteLog;
+	};
+
+	[[nodiscard]] inline std::wstring Add_Log(const wchar_t *NameOrFunc, const int &Events);
+	[[nodiscard]] inline std::wstring Add_Log(const wchar_t *NameOrFunc, const wchar_t *Events);
+	[[nodiscard]] inline std::wstring Add_Log(const std::wstring &NameOrFunc, const std::wstring &Events);
+	[[nodiscard]] inline std::wstring Add_Log(std::wstring &&NameOrFunc, std::wstring &&Events);
+	
+	class CConsole
+	{
+	public:
+		CConsole() : cols(80L), lines(30L), x_cols(120L), y_lines(30L){   }
+		[[noreturn]] void operator()(SetCon Param = SetCon::CLEAR) noexcept
+		{
+			if (Param == SetCon::CLEAR)
+				Resize(lines, cols), Color(COLORS::WHITE, COLORS::BLACK);
+		}
+		[[noreturn]] void GetKey(int &rParam) noexcept { rParam = _getch(); }
+		template <typename T>
+		[[noreturn]] void Read(T&  Buff) const { std::wcin >> Buff; }
+		template <>
+		[[noreturn]] void Read<wchar_t*>(wchar_t*& Buff) const { std::wcin >> Buff; }
+
+		[[deprecated
+		( "Allen: I'm not sure that this function is safe. "
+			"Consider using standard function." )]]
+		void ReadFmt(const wchar_t *pszFormat, ...) const 
+		{
+			va_list _ArgList;
+			__crt_va_start(_ArgList, pszFormat);
+			_vftscanf_s(stdin, pszFormat, _ArgList);
+			__crt_va_end(_ArgList);
+		}
+		[[noreturn]] void ReadLine(std::wstring &buff) const { std::getline(std::wcin, buff); }
+		template<size_t size>
+		[[noreturn]] void ReadLine(wchar_t(&Buff)[size]) { std::getline(std::wcin, Buff); }
+		[[noreturn]] void Alarm(void) const { std::wcout << L'\a'; }
+		[[noreturn]] void BootScr(const wchar_t* Message, const wchar_t *Version = VER) print_only
+		{
+			CurBack();
+			std::wcout <<
+				L"□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□" << std::endl << std::endl <<
+				L"      □□□        □        □    □□□□□    □□□□        □□□       □        □             □□□" << std::endl <<
+				L"    □      □      □        □    □            □      □    □           □  □      □           □" << std::endl <<
+				L"  □          □    □        □    □            □      □   □           □    □     □          □" << std::endl <<
+				L"  □          □    □        □    □□□□□    □□□□     □          □□□□□    □          □" << std::endl <<
+				L"  □          □     □      □     □            □      □   □          □      □    □          □" << std::endl <<
+				L"    □      □        □    □      □            □      □    □         □      □    □           □" << std::endl <<
+				L"      □□□            □□        □□□□□    □      □      □□□   □      □    □□□□□     □□□" << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl <<
+				L"					Beyond the limits of a calculator." << std::endl <<
+				L"						Beyond your limits." << std::endl << std::endl << std::endl << std::endl << std::endl <<
+				L"					   	      " << L'-' << Version << L'-' << std::endl << std::endl << std::endl <<
+				L"					   	    2017 Allen Na" << std::endl << std::endl << std::endl <<
+				Message << std::endl << std::endl <<
+				L"□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□";	
+		}
+		[[noreturn]] void Color(COLORS text_color, COLORS back_color) const
+		{
+			::SetConsoleTextAttribute(
+				Overhdl, static_cast<unsigned short>(text_color) | (static_cast<unsigned short>(back_color) << 4)
+			);
+		}
+		[[noreturn]] void Cur(int width_from_left, int height_from_top) const
+		{
+			OData.Position.X = static_cast <SHORT> (width_from_left);
+			OData.Position.Y = static_cast <SHORT> (height_from_top);
+			::SetConsoleCursorPosition(Overhdl, OData.Position);
+		}
+		[[noreturn]] void CurBack(void) const
+		{
+			OData.Position.X = static_cast<SHORT>(0);
+			OData.Position.Y = static_cast <SHORT> (0);
+			::SetConsoleCursorPosition(Overhdl, OData.Position);
+		}
+		[[noreturn]] void NextLine(void) const { std::wcout << std::endl; }
+		[[noreturn]] void PrintBar(void) const throw() {
+			std::wcout << L"========================================================================================================================" << std::endl;
+		}
+		[[noreturn]] void PrintSquareBar(void) const
+		{
+			for (int i = 0; i < 60; ++i)
+				std::wcout << L'□';
+			std::wcout << std::endl;
+		}
+		[[noreturn]] void SetBG(COLORS text, COLORS back) const
+		{
+			Var wchar_t pszColor[32]{L""}, pszText[5]{L""}, pszBack[5]{L""};
+			_itow_s(static_cast<int>(text), pszText, 5, 16);
+			_itow_s(static_cast<int>(back), pszBack, 5, 16);
+			wcscpy_s(pszColor, L"color ");
+			wcscat_s(pszColor, pszText);
+			wcscat_s(pszColor, pszBack);
+			_wsystem(pszColor);
+		}
+		[[noreturn]] void Title(const wchar_t *pszTitle) const
+		{
+			OData.wcsTitle = L"title ";
+			OData.wcsTitle += pszTitle;
+			_wsystem(OData.wcsTitle.c_str());
+			OData.wcsTitle.clear();
+		}
+		[[noreturn]] void WriteLine(const wchar_t *pszParam) const { std::wcout << pszParam << std::endl; }
+		[[noreturn]] void Write(const wchar_t *pszParam) const { std::wcout << pszParam; }
+		[[noreturn]] void __cdecl WriteFmt(const wchar_t *pszParam, ...) const
+		{
+			int nLength;
+			va_list ArgList;
+			va_start(ArgList, pszParam);
+
+				nLength = _vscwprintf(pszParam, ArgList) + 1;
+				std::shared_ptr<wchar_t> pBuffer(new wchar_t[nLength], ReleaseArr);
+				vswprintf_s(pBuffer.get(), sizeof(wchar_t)*nLength, pszParam, ArgList);
+
+			va_end(ArgList);
+			std::cout << pBuffer;
+		}
+		[[noreturn]] void __cdecl WriteSleep(int MilPausetime, ...) const
+		{
+			va_list ArgList;
+			va_start(ArgList, MilPausetime);
+
+			wchar_t* p = nullptr;
+			while (true)
+			{
+				p = va_arg(ArgList, wchar_t*);
+				if (p == nullptr)
+					break;
+				
+				Sleep_Mil(MilPausetime);
+				std::wcout << p;
+			}
+
+			va_end(ArgList);
+		}
+		[[noreturn]] void Clear(void) const
+		{
+			for (Var int i = 0; i < y_lines; ++i)
+			{
+				Cur(0, i);
+				std::wcout.width(x_cols), std::wcout.fill(L' ');
+				std::wcout << L' ';
+			}
+			std::wcout.width(0);
+		}
+		[[noreturn]] void ClearBuff(void) { std::wcin.clear(); }
+		[[noreturn]] void Clearline(int nLine)
+		{
+			Cur(0, nLine);
+			std::wcout.width(x_cols);
+			std::wcout << L' ';
+			std::wcout.width(0);
+		}
+		[[noreturn]] void Command(const wchar_t* pszCommand) { _wsystem(pszCommand); }
+		[[noreturn]] void Command(std::wstring &&Command) { _wsystem(Command.c_str()); }
+		[[noreturn]] void Flush_In(void) { std::wcin.ignore(128, L'\n'); }
+		[[noreturn]] void Flush_Out(void) { std::wcout.flush(); }
+		const CConsole &Pause() { ::_getch(); return *this; }
+		[[noreturn]] void PauseMsg() { _wsystem(L"PAUSE"); }
+		[[noreturn]] void Resize(const long Lines, const long Cols)
+		{
+			x_cols = Cols, y_lines = Lines;
+			Var wchar_t chLINE[8]{L""}, chCOLS[8]{L""};
+			_itow_s(Lines, chLINE, 8);
+			_itow_s(Cols, chCOLS, 8);
+			OData.wcsSize += L"mode con lines=";
+			OData.wcsSize += chLINE;
+			OData.wcsSize += L" cols=";
+			OData.wcsSize += chCOLS;
+			_wsystem(OData.wcsSize.data());
+		}
+		[[noreturn]] void SetCodePage(CP param)
+		{
+			wchar_t buff[8]{L""};
+			_itow_s(static_cast<int>(param), buff, 10);
+			_wsystem((std::wstring(L"chcp ") + buff).c_str());
+			Clear();
+		}
+		[[noreturn]] void Sleep(unsigned int Second) const { ::Sleep(Second * 1'000); }
+		[[noreturn]] void Sleep_Mil(unsigned int MilSecond) const { ::Sleep(MilSecond); }
+
+		int Wherex(void)
+		{
+			CONSOLE_SCREEN_BUFFER_INFO BufInfo;
+
+			GetConsoleScreenBufferInfo(Overhdl, &BufInfo);
+			return BufInfo.dwCursorPosition.X;
+		}
+
+		int Wherey(void)
+		{
+			CONSOLE_SCREEN_BUFFER_INFO BufInfo;
+
+			GetConsoleScreenBufferInfo(Overhdl, &BufInfo);
+			return BufInfo.dwCursorPosition.Y;
+		}
+
+		[[noreturn]] void SetCursorType(CURSOR_TYPE ct)
+		{
+			CONSOLE_CURSOR_INFO CurInfo;
+
+			switch (ct)
+			{
+				case CURSOR_TYPE::NO:
+					CurInfo.dwSize = 1UL;
+					CurInfo.bVisible = static_cast<BOOL>(0);
+					break;
+				case CURSOR_TYPE::SOLID:
+					CurInfo.dwSize = 100UL;
+					CurInfo.bVisible = static_cast<BOOL>(1);
+					break;
+				case CURSOR_TYPE::NORMAL:
+					CurInfo.dwSize = 20UL;
+					CurInfo.bVisible = static_cast<BOOL>(1);
+					break;
+			}
+			SetConsoleCursorInfo(Overhdl, &CurInfo);
+		}
+	private:
+		long x_cols, y_lines;
+		const long cols, lines;
+		friend void ReleaseArr(wchar_t *pBuff);
+	};
+	void ReleaseArr(wchar_t *pBuff) { delete[] pBuff; }
+
+	class COverIO : public CConsole
+	{
+	public:
+		COverIO();
+		~COverIO() {   };
+
+		[[nodiscard]] Cstr Date();
+		[[noreturn]] void operator <<(std::wstring &&rhs) { OData.ULogList.push_back(rhs); }
+
+		CFileIO* operator->(void) { return &File_; }
+		[[noreturn]] void SendMail(void);
+
+	private:
+		// CFile IO
+		CFileIO File_;
+	};
+
+	extern COverIO IOsys;
+}
+#endif // !_OVERIO_

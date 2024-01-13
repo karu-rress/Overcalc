@@ -1,0 +1,17 @@
+#pragma once
+#ifndef _OVERUI_
+#define _OVERUI_
+namespace Overcalc 
+{
+	class COverUI
+	{
+	public:
+		COverUI() {   }
+		~COverUI() {   }
+		[[noreturn]] void PrintMenu (const CBasic &rhs) noexcept { rhs.CBasic::PrintMenu(); rhs.PrintMenu(); }
+		[[noreturn]] inline void PlayMenu(const CBasic &rhs) noexcept { rhs.PlayMenu(); };
+		void SelectMenu(int &rMenu);
+		[[nodiscard]] int RunBasic(void);
+	};
+}
+#endif

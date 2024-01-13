@@ -1,0 +1,165 @@
+//
+//  OverData
+//
+//
+//         Class of Critical Datas of the Overcalc.
+//         Copyright (c) 2017 Allen Na. All rights reserved.
+//
+//         Contents:
+//               class COverData
+//               (extern) COverData Data;
+//				  enum classes about menu of editions
+//
+
+#pragma once
+#ifndef _OVERDATA_
+#define _OVERDATA_
+enum class KEY
+{
+	Esc = 27,
+
+	Fn = 0,
+	F1 = 59, F1_Shift = 84, F1_Ctrl = 94,
+	F2 = 60, F2_Shift = 85, F2_Ctrl = 95,
+	F3 = 61, F3_Shift = 86, F3_Ctrl = 96,
+	F4 = 62, F4_Shift = 87, F4_Ctrl = 97,
+	F5 = 63, F5_Shift = 86, F5_Ctrl = 96,
+	F6 = 64, F6_Shift = 87, F6_Ctrl = 97,
+	F7 = 65, F7_Shift = 88, F7_Ctrl = 98,
+	F8 = 66, F8_Shift = 89, F8_Ctrl = 99,
+	Arrow = 224,
+	Arrow_Down = 80, Arrow_Up = 72, Arrow_Right = 77, Arrow_Left = 75,
+	/////////////////////////////////////////////////////////////////////////
+	Swung_Dash,
+	Num1, Num2, Num3, Num4, Num5, Num6, Num7, Num8, Num9, Num0,
+	Minus, Equal, Back_Slash, Back_Space,
+	Insert, Home, Pgup, Pgdn, Delete, End,
+	Tab, CapsLock, LShift, LCtrl, LWin, LAlt, Hanja,
+	Space, Kor_Eng, RAlt, RWin, Menu, RCtrl, RShift, Enter = 13,
+	Q, W, E, R, T, Y, U, I, O, P, A, S, D, F, G, H, J, K, L, Z, X, C, V, B, N, M,
+	q, w, e, r, t, y, u, i, o, p, a, s, d, f, g, h, j, k, l, z, x, c, v, b, n, m,
+	BigParSrt, BigParEnd, SemiColon, Apostrophe,
+	Comma, Dot, Slash
+};
+enum class BAISC_MENU
+{
+	MIN = 0,
+	AGE_CALC,
+	DOLL_GAME,
+	LOTTO,
+	_19DAN,
+	KABABO,
+	CALENDAR,
+	BMI,
+	SUTJA,
+	DVLP_OVERCALC,
+	EDITIONS,
+	STORE,
+	MAX = 11
+};
+
+enum class COLORS
+{
+	BLACK,
+	BLUE,
+	GREEN,
+	AQUA,
+	RED,
+	PULPLE,
+	YELLOW,
+	WHITE,
+	GRAY,
+	LIGHT_BLUE,
+	LIGHT_GREEN = 0xA,
+	LIGHT_AQUA,
+	LIGHT_RED,
+	LIGHT_PURPLE,
+	LIGHT_YELLOW,
+	BRIGHT_WHITE
+};
+namespace Overcalc
+{
+	template <typename T>
+	inline bool operator==(T tVal, KEY rhs)
+	{
+		return (tVal == static_cast<T>(rhs)) ? true : false;
+	}
+
+
+	using CData = class COverData
+	{
+		friend class CConsole;
+		friend class CFileIO;
+		friend class COverIO;
+		friend class CBMenu2;
+		friend class CBMenu5;
+		friend std::wstring Add_Log(const wchar_t*, const int&);
+		friend std::wstring Add_Log(const wchar_t*, const wchar_t* );
+		friend std::wstring Add_Log(const std::wstring&, const std::wstring &);
+		friend std::wstring Add_Log(std::wstring &&, std::wstring &&);
+		public:	
+		COverData() 
+			: Topin(0), Edition(0), Money(0), Jumsu(0), Language(0), DateBuf(new wchar_t[64]), exit(false) { /*Body*/ }
+
+		~COverData() { delete[] DateBuf; }
+		// 객체의 복사는 허용하지 않는다!
+		COverData(const COverData &rhs) = delete;
+		Int getTopin(void) { return Topin; }
+		Int getMoney(void) { return Money; }
+		bool is_exit(void) { return exit; }
+
+	private:
+		Int Topin;
+		Int Edition;
+		Int Money;
+		Int Jumsu;
+		Int Language;
+		wchar_t *DateBuf = nullptr;
+		tm tstruct;
+		time_t Now;
+		std::list<std::wstring> ULogList;
+		COORD Position = {0, 0};
+		std::wstring wcsTitle, wcsSize;
+		wchar_t *pszJibgaeHand = L"    =========\n    ||      ||\n    ||      ||";
+		std::vector<wchar_t*> pszJibgaeDown{
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||"
+		};
+		std::vector<wchar_t*> pszJibgaeUp{
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||",
+			L"\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||\n\t||"
+		};
+		Var std::vector<wchar_t> dolgm_ovr{ L'당',L'신', L'은', L'그', L'렇', L'게', L'.', L'.', L'.', L'\n', L'\'', L'거', L'지', L'\'',
+			L'가', L' ', L'되', L'고', L' ', L'말', L'았', L'다', L'.', L'.', L'.', L'.', L'\n' };
+	public:
+		bool exit;
+	};
+	extern COverData OData;
+	extern std::vector<wchar_t*> badwords;
+	extern HANDLE Overhdl;									// Overcalc의 핸들 값
+}
+
+#endif // !_OVERDATA_

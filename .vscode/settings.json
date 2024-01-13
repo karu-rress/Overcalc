@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "*.embeddedhtml": "html",
+        "*.rmd": "markdown",
+        "basic": "cpp",
+        "overdata": "cpp",
+        "overexception": "cpp",
+        "overhead": "cpp",
+        "overinli": "cpp",
+        "overio": "cpp",
+        "overui": "cpp"
+    }
+}

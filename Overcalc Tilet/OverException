@@ -1,0 +1,40 @@
+
+
+#pragma once
+#ifndef _OVEREXCEPTION_
+#define _OVEREXCEPTION_
+namespace Overcalc
+{
+	class COverErrorMsg
+	{
+		friend class COverException;
+
+		std::vector<wchar_t*> ErrorMsg
+		{
+			L"메모리 할당 오류",
+			L"파일 읽기 오류"
+		};
+
+	public: inline wchar_t* operator[](int nExp) { return ErrorMsg[nExp]; }
+	};
+
+	extern COverErrorMsg ExpCtrl;
+
+	class COverException
+	{
+	public:
+		explicit COverException(int nCode) : nErrorCode(nCode) {
+			wcscpy_s(ErrorMsg, ExpCtrl[nErrorCode]);
+		}
+
+		~COverException() {   }
+
+		Int GetCode(void) { return nErrorCode; }
+		wchar_t* GetMsg(void) { return ErrorMsg; }
+
+	private:
+		Int nErrorCode;
+		wchar_t ErrorMsg[128];
+	};
+}
+#endif // !_OVEREXCEPTION_

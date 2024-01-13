@@ -1,0 +1,25 @@
+#pragma once
+#ifndef _OVERINLI_
+#define _OVERINLI_
+#include "stdafx.h"
+#include "OverIO"
+inline std::wstring Overcalc::Add_Log(const wchar_t *NameOrFunc, const int &Events)
+{
+	wchar_t buf[10]{ '\0' };
+	_itot_s(Events, buf, 10);
+	return std::wstring(IOsys.Date()) + L"\t\t" + NameOrFunc + L"\t\t" + buf;
+}
+inline std::wstring Overcalc::Add_Log(const wchar_t *NameOrFunc, const wchar_t *Events)
+{
+	return std::wstring(IOsys.Date()) + L"\t\t" + NameOrFunc + L"\t\t" + Events;
+}
+inline std::wstring Overcalc::Add_Log(const std::wstring &NameOrFunc, const std::wstring &Events)
+{
+	return std::wstring(IOsys.Date()) + L"\t\t" + NameOrFunc + L"\t\t" + Events;
+}
+inline std::wstring Overcalc::Add_Log(std::wstring &&NameOrFunc, std::wstring &&Events)
+{
+	return std::wstring(IOsys.Date()) + L"\t\t" + NameOrFunc + L"\t\t" + Events;
+}
+
+#endif // !_OVERINLI_

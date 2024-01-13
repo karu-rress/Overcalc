@@ -1,0 +1,81 @@
+#pragma once
+#include "stdafx.h"
+#define VER L"7"
+
+#pragma region using_type
+
+	///////////                               WIN64                      ////////
+
+	#ifdef _WIN64
+
+		using Int = long long;
+		using Uint = unsigned long long;
+		using Time = __time64_t;
+
+	#elif defined( _WIN32) //   ^^ _WIN64  ^^  |   v v _WIN32  v v   //
+
+		using Int = int;
+		using Uint = unsigned int;
+		using Time = __time32_t;
+
+	#endif // _WIN64
+
+	using Cstr = const wchar_t *;
+
+
+// using_type
+#pragma endregion 
+
+
+#define BASIC
+#define PRO
+
+////////                     MACRO FOR DEBUG               //////////
+
+#if (IS_DEBUG == 1)
+
+	//1이라면 이 스위치가 켜지면서
+	#define DEBUG										
+	//DEBUG가 정의 되고
+	#pragma message("사용자 DEBUG매크로가 활성화 되어 있습니다."
+
+#else
+
+	// 0이라면 DEBUG가 정의 되지 않는다
+	#ifdef DEBUG
+		#undef DEBUG
+	#endif  
+
+#endif // IS_DEBUG == 1
+
+#ifdef DEBUG
+
+	// DEBUG가 디파인 되면 이 스위치가 켜지며
+	#define msgout(x) std::Cerr << L#x) << std::endl;
+	// msgout매크로가 동작한다
+
+#else
+
+	// 그러므로 msgout매크로가 아무런 역할도 하지 않는다.
+	#define msgout(x)
+
+#endif // DEBUG
+
+///                 MACRO FOR PROGRAMMING                ///
+
+#define pthis (*this)													// (*this)
+#define Var
+#define print_only
+
+#define ESCAPE_EDITION()		throw 0;
+
+// ...
+
+//////                                   VARIABLE                         /////
+#ifdef _UNICODE
+	constexpr wchar_t Square = 0x25A1U;
+	constexpr wchar_t *Squares[7]{L"\u25a1", L"\u25a1", L"\u25a1\u25a1", L"\u25a1\u25a1\u25a1", L"\u25a1\u25a1\u25a1\u25a1", L"\u25a1\u25a1\u25a1\u25a1\u25a1", L"\u25a1\u25a1\u25a1\u25a1\u25a1\u25a1"};
+#else
+	constexpr unsigned wchar_t Square = 128;
+#endif // _UNICODE
+

@@ -1,0 +1,299 @@
+
+
+
+#pragma once
+#ifndef _BASIC_
+#define _BASIC_
+#include "Overhead"
+#include "stdafx.h"
+
+namespace Overcalc
+{
+	class CBasic
+	{
+	public: 
+		CBasic(void) {  }
+		virtual ~CBasic(void) {   } 
+		[[noreturn]] virtual void PrintMenu(void) const noexcept = 0
+		{
+			IOsys.CurBack();
+			IOsys.PrintBar();
+			std::wcout << L"                      			     Overcalc BASIC Arrown			    	    by Allen Na" << std::endl;
+			std::wcout << L"													TOPIN : " << OData.getTopin() << std::endl;
+			IOsys.PrintBar();
+		}
+		[[noreturn]] virtual void PlayMenu(void) const = 0;
+	};
+
+	class CBMenu1 : public CBasic
+	{
+	public: 
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+	};
+	
+	class CBMenu2 : public CBasic
+	{
+	public:
+		CBMenu2(void) { Release(); }
+		void DollGame(void) const;
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+		void DollMenu(int &rnParam) const;
+		void Release(void) const { OData.Money = 5'000; }
+		void GameOver(void) const;
+	};
+
+	class CBMenu3 : public CBasic
+	{
+	public:
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+	};
+
+	class CBMenu4 : public CBasic
+	{
+	public:
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+	};
+
+	class CBMenu5 : public CBasic
+	{
+	public:
+		CBMenu5() : rng(rd()), random(1, 3), Result(3) { }
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+		int KababoMenu(void) const;
+		int PlayRSP(const int &) const;
+		[[noreturn]] void How(void) const noexcept
+		{
+			IOsys.Color(COLORS::WHITE, COLORS::PULPLE);
+			std::wcout << L"\t\t게임 방법" << std::endl
+				<< L"게임을 시작하시면 가위, 바위, 보 중에 하나를 선택합니다." << std::endl
+				<< L"이기거나 지면 각각 1점을 얻거나 잃습니다." << std::endl
+				<< L"인생 역전은 승리시 10점을 얻지만 패배시 점수를 다 잃습니다." << std::endl
+				<< L"점수가 -3이 되면 당신의 패배로 게임이 끝납니다." << std::endl
+				<< L"점수가 10이 되면 당신이 이깁니다." << std::endl
+				<< L"메인으로 돌아가기를 누르시면 메인으로 갑니다." << std::endl
+				<< L"준비가 되셨다면 엔터키를 눌러주세요." << std::endl
+				<< L"행운을 빕니다!" << std::endl;
+			IOsys.Pause().Clear();
+		}
+		int RSP(void) const
+		{
+			wchar_t RSP[20]{L""};
+			IOsys.Clear();
+			std::wcout << L"가위, 바위, 보 중 하나를 입력하세요 : ";
+			std::wcin >> RSP;
+
+					if (wcscmp(RSP, L"가위"))			Scissors();
+			else	if (wcscmp(RSP, L"바위"))			Rock();
+			else	if (wcscmp(RSP, L"보"))				Paper();
+			else	IOsys.WriteLine(L"아니..가위바위보를 하라니까 뭘 입력한거야?");
+
+			IOsys.Pause().Clear(); return 2;
+		}
+		int LifeRSP(void) const
+		{
+			wchar_t RSP[20]{L""};
+			IOsys.Clear();
+			IOsys.Color(COLORS::YELLOW, COLORS::BLACK);
+			std::wcout << L"자... 가위, 바위, 보 중 하나를 입력하세요 : ";
+			std::wcin >> RSP;
+			
+			if (wcscmp(RSP, L"가위"))			LfScissors();
+			else	if (wcscmp(RSP, L"바위"))			LfRock();
+			else	if (wcscmp(RSP, L"보"))				LfPaper();
+			else	IOsys.WriteLine(L"아니..가위바위보를 하라니까 뭘 입력한거야?");
+
+		}
+		int Rock(void) const 
+		{
+			Int &jumsu = OData.Jumsu;
+			std::wcout << std::endl << L"당신의 선택은 \"바위\"입니다." << std::endl; 
+			IOsys.WriteSleep(1000, L"가위,       ", L"바위,       ", L"보!");
+			
+			Result[0] = [&jumsu] () -> void {
+					std::wcout << L"당신 : 바위" << std::endl << L"컴퓨터 : 가위" << std::endl << std::endl << L"당신이 이겼습니다. 1점을 획득하셨습니다.";
+					++jumsu;
+			};
+			Result[1] = [ ] {
+					std::wcout << L"당신 : 바위" << std::endl << L"컴퓨터 : 바위" << std::endl << std::endl << L"이런...비겼습니다.";
+			};
+			Result[2] = [&jumsu] {
+					std::wcout << L"당신 : 바위" << std::endl << +L"컴퓨터 : 보" << std::endl << std::endl << L"운이 없었나?.... 졌습니다. 1점을 잃었습니다.";
+					--jumsu;
+				};
+
+			Result[random(rng) - 1];
+		}
+		int Scissors(void) const
+		{ 
+			Int &jumsu = OData.Jumsu;
+			std::wcout << std::endl << L"당신의 선택은 \"가위\"입니다." << std::endl;
+			IOsys.WriteSleep(1000, L"가위,       ", L"바위,       ", L"보!");
+
+			Result[0] = [&jumsu]
+			{
+				std::wcout << L"당신 : 가위" << std::endl << L"컴퓨터 : 보" << std::endl << std::endl << L"당신이 이겼습니다. 1점을 획득하셨습니다.";
+				++jumsu;
+			};
+			Result[1] = [ ]
+			{
+				std::wcout << L"당신 : 가위" << std::endl << L"컴퓨터 : 가위" << std::endl << std::endl << L"이런...비겼습니다.";
+			};
+			Result[2] = [&jumsu]
+			{
+				std::wcout << L"당신 : 가위" << std::endl << +L"컴퓨터 : 바위" << std::endl << std::endl << L"운이 없었나?.... 졌습니다. 1점을 잃었습니다.";
+				--jumsu;
+			};
+
+			Result[random(rng) - 1];
+		}
+		void Paper(void) const
+		{
+			Int &jumsu = OData.Jumsu;
+			std::wcout << std::endl << L"당신의 선택은 \"보\"입니다." << std::endl;
+			IOsys.WriteSleep(1000, L"가위,       ", L"바위,       ", L"보!");
+
+			Result[0] = [&jumsu]
+			{
+				std::wcout << L"당신 : 보" << std::endl << L"컴퓨터 : 바위" << std::endl << std::endl << L"당신이 이겼습니다. 1점을 획득하셨습니다.";
+				++jumsu;
+			};
+			Result[1] = [ ]
+			{
+				std::wcout << L"당신 : 보" << std::endl << L"컴퓨터 : 보" << std::endl << std::endl << L"이런...비겼습니다.";
+			};
+			Result[2] = [&jumsu]
+			{
+				std::wcout << L"당신 : 보" << std::endl << +L"컴퓨터 : 가위" << std::endl << std::endl << L"운이 없었나?.... 졌습니다. 1점을 잃었습니다.";
+				--jumsu;
+			};
+
+			Result[random(rng) - 1];
+		}
+
+		int LfRock(void) const
+		{
+			Int &jumsu = OData.Jumsu;
+			std::wcout << std::endl << L"당신의 선택은 \"바위\"입니다." << std::endl;
+			IOsys.WriteSleep(1000, L"가위,       ", L"바위,       ", L"보!");
+
+			Result[0] = [&jumsu] () -> void
+			{
+				std::wcout << L"당신 : 바위" << std::endl << L"컴퓨터 : 가위" << std::endl << std::endl << L"당신이 이겼습니다!!! 10점을 획득하셨습니다.";
+				jumsu += 10;
+			};
+			Result[1] = [&jumsu]
+			{
+				std::wcout << L"당신 : 바위" << std::endl << L"컴퓨터 : 바위" << std::endl << std::endl << L"이런...비겼습니다. 5점을 잃었습니다...";
+				jumsu -= 5;
+			};
+			Result[2] = [&jumsu]
+			{
+				std::wcout << L"당신 : 바위" << std::endl << +L"컴퓨터 : 보" << std::endl << std::endl << L"운이 없었나?.... 졌습니다. 모든 점수를 잃었습니다.";
+				jumsu -= 20;
+			};
+
+			Result[random(rng) - 1];
+		}
+		int LfScissors(void) const
+		{
+			Int &jumsu = OData.Jumsu;
+			std::wcout << std::endl << L"당신의 선택은 \"가위\"입니다." << std::endl;
+			IOsys.WriteSleep(2000, L"가위,       ", L"바위,       ", L"보!");
+
+			Result[0] = [&jumsu]
+			{
+				std::wcout << L"당신 : 가위" << std::endl << L"컴퓨터 : 보" << std::endl << std::endl << L"당신이 이겼습니다!!! 10점을 획득하셨습니다.";
+				jumsu += 10;
+			};
+			Result[1] = [&jumsu]
+			{
+				std::wcout << L"당신 : 가위" << std::endl << L"컴퓨터 : 가위" << std::endl << std::endl << L"이런...비겼습니다. 5점을 잃었습니다...";
+				jumsu -= 5;
+			};
+			Result[2] = [&jumsu]
+			{
+				std::wcout << L"당신 : 가위" << std::endl << +L"컴퓨터 : 바위" << std::endl << std::endl << L"운이 없었나?.... 졌습니다. 모든 점수를 잃었습니다.";
+				jumsu -= 20;
+			};
+
+			Result[random(rng) - 1];
+		}
+		void LfPaper(void) const
+		{
+			Int &jumsu = OData.Jumsu;
+			std::wcout << std::endl << L"당신의 선택은 \"보\"입니다." << std::endl;
+			IOsys.WriteSleep(1000, L"가위,       ", L"바위,       ", L"보!");
+
+			Result[0] = [&jumsu]
+			{
+				std::wcout << L"당신 : 보" << std::endl << L"컴퓨터 : 바위" << std::endl << std::endl << L"당신이 이겼습니다!!! 10점을 획득하셨습니다.";
+				jumsu += 10;
+			};
+			Result[1] = [&jumsu]
+			{
+				std::wcout << L"당신 : 보" << std::endl << L"컴퓨터 : 보" << std::endl << std::endl << L"이런...비겼습니다. 5점을 잃었습니다...";
+				jumsu -= 5;
+			};
+			Result[2] = [&jumsu]
+			{
+				std::wcout << L"당신 : 보" << std::endl << +L"컴퓨터 : 가위" << std::endl << std::endl << L"운이 없었나?.... 졌습니다. 모든 점수를 잃었습니다.";
+				jumsu -= 20;
+			};
+
+			Result[random(rng) - 1];
+		}
+	private:
+		std::random_device rd;
+		mutable std::mt19937 rng;
+		std::uniform_int_distribution<int> random;
+		mutable std::vector<std::function<void(void)> > Result;
+	};
+
+	class CBMenu6 : public CBasic
+	{
+	public:
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+	};
+
+	class CBMenu7 : public CBasic
+	{
+	public:
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+	};
+
+	class CBMenu8 : public CBasic
+	{
+	public:
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+	};
+
+	class CBMenu9 : public CBasic
+	{
+	public:
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+	};
+
+	class CBMenu10 : public CBasic
+	{
+	public:
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+	};
+
+	class CBMenu11 : public CBasic
+	{
+	public:
+		virtual void PrintMenu(void) const noexcept override;
+		virtual void PlayMenu(void) const;
+	};
+}
+#endif // !_BASIC_
